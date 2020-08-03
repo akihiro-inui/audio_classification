@@ -224,7 +224,7 @@ def main():
     # Confusion matrix
     test_loader = DataProcess.torch_test_data_loader(test_data, test_label)
     prediction = MGC.predict(model, test_loader)
-    print("混同行列")
+    print("Confusion Matrix")
     print(confusion_matrix(test_label, prediction.argmax(axis=1)))
 
 
