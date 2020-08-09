@@ -124,7 +124,7 @@ class Classifier:
         :return  model: trained   model
         """
         print("Train Started")
-        if self.selected_classifier == "cnn" or self.selected_classifier == "resnet" or self.selected_classifier == "rnn":
+        if self.selected_classifier == "resnet" or self.selected_classifier == "rnn":
             # Make Torch dataset loader for train
             train_loader, validation_loader = DataProcess.torch_train_data_loader(train_data, train_label, self.validation_rate)
             # Train model
@@ -142,7 +142,7 @@ class Classifier:
         :return Over all test score (accuracy)
         """
         print("Test Started")
-        if self.selected_classifier == "cnn" or self.selected_classifier == "resnet" or self.selected_classifier == "rnn":
+        if self.selected_classifier == "resnet" or self.selected_classifier == "rnn":
             # Make Torch dataset loader for test
             test_loader = DataProcess.torch_test_data_loader(test_data, test_label)
             # Test model performance
@@ -159,6 +159,15 @@ class Classifier:
         :return prediction result with accuracy
         """
         return self.classifier.predict(model, target_data)
+
+    def predict_one(self, model, target_data) -> list:
+        """
+        Make prediction to a given target data and return the prediction result with accuracy for each sample
+        :param  model: trained model
+        :param  target_data: target data
+        :return prediction result with accuracy
+        """
+        return self.classifier.predict_one(model, target_data)
 
     def show_history(self, model_training):
 
