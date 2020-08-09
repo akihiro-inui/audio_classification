@@ -81,7 +81,7 @@ class AudioPreProcess:
 
         # Apply window
         windowed_audio_list = []
-        if window_type is "hamm":
+        if window_type == "hamm":
             for frame in range(len(framed_audio_tuple)):
                 windowed_audio_list.append(framed_audio_tuple[frame] * np.hamming(window_size))
         return tuple(windowed_audio_list)

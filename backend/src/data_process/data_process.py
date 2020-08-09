@@ -494,13 +494,17 @@ class DataProcess:
                 filehandle.write('%s\n' % element)
 
     @staticmethod
-    def remove_nan_from_array(feature_array, label_array):
+    def remove_nan_from_array(expert_feature_array, mel_spectrogram_array, label_array):
         """
         Remove rows contain NaN from numpy array
-        :param  feature_array: extracted feature in 2D numpy array
+        :param  expert_feature_array: extracted feature in 2D numpy array
+        :param mel_spectrogram_array: extracted feature in 3D numpy array
         :param label_array: Label array
         """
         # Get index to remove where NaN value exist
-        remove_index = np.where(np.isnan(feature_array).any(axis=1))
+        remove_index = np.where(np.isnan(expert_feature_array).any(axis=1))
+        expert_feature_array = expert_feature_array[~np.isnan(expert_feature_array).any(axis=1)]
+        mel_spectrogram_array = np.delete(mel_spectrogram_array, remove_index, axis=0)
+        label_array = np.delete(label_array, remove_index)
 
-        return feature_array[~np.isnan(feature_array).any(axis=1)], np.delete(label_array, remove_index)
+        return expert_feature_array, mel_spectrogram_array, label_array

@@ -89,12 +89,19 @@ class MusicGenreClassification:
         # Normalize expert feature
         if normalize is True:
             # Remove NaNs from array
-            expert_feature_array, label_array = DataProcess.remove_nan_from_array(expert_feature_array, label_array)
+            expert_feature_array, mel_spectrogram_array, label_array = DataProcess.remove_nan_from_array(expert_feature_array,
+                                                                                                         mel_spectrogram_array,
+                                                                                                         label_array)
 
             # Take stats from expert feature
             DataProcess.take_dataset_stats(expert_feature_array, 'backend/expert_feature_mean_list.txt')
             expert_feature_array = DataProcess.min_max_normalize(expert_feature_array)
 
+        # Convert dimension of mel-spectrogram array
+        mel_spectrogram_array = mel_spectrogram_array.reshape(mel_spectrogram_array.shape[0],
+                                                              mel_spectrogram_array.shape[1],
+                                                              mel_spectrogram_array.shape[2],
+                                                              1)
         return expert_feature_array, mel_spectrogram_array, label_array
 
     def save_data(self, expert_feature_array, mel_spectrogram_array, label_array):
@@ -106,7 +113,9 @@ class MusicGenreClassification:
         :return:
         """
         # Remove NaNs from array
-        expert_feature_array, label_array = DataProcess.remove_nan_from_array(expert_feature_array, label_array)
+        expert_feature_array, mel_spectrogram_array, label_array = DataProcess.remove_nan_from_array(expert_feature_array,
+                                                                                                     mel_spectrogram_array,
+                                                                                                     label_array)
 
         # Take stats from expert feature
         DataProcess.take_dataset_stats(expert_feature_array, 'backend/normalized_expert_feature_mean_list.txt')
@@ -114,7 +123,7 @@ class MusicGenreClassification:
         # Save data
         np.save(os.path.join('backend/feature/expert', "data"), expert_feature_array)
         np.save(os.path.join('backend/feature/expert', "label"), label_array)
-        np.save(os.path.join('backend/feature/mel_spectrogram', "data"), expert_feature_array)
+        np.save(os.path.join('backend/feature/mel_spectrogram', "data"), mel_spectrogram_array)
         np.save(os.path.join('backend/feature/mel_spectrogram', "label"), label_array)
 
         return expert_feature_array, mel_spectrogram_array, label_array
@@ -186,7 +195,9 @@ def main():
     run_training = True
 
     # Instantiate mgc main class
-    MGC = MusicGenreClassification(AudioDatasetMaker, AudioFeatureExtraction, Classifier,
+    MGC = MusicGenreClassification(AudioDatasetMaker,
+                                   AudioFeatureExtraction,
+                                   Classifier,
                                    music_dataset_path="processed_music_data",
                                    setting_file="config/master_config.ini")
 
@@ -204,7 +215,9 @@ def main():
                                                                                   MGC.cfg.normalize)
 
         # Save extracted data
-        expert_feature_array, mel_spectrogram_array, label_array = MGC.save_data(expert_feature_array, mel_spectrogram_array, label_array)
+        expert_feature_array, mel_spectrogram_array, label_array = MGC.save_data(expert_feature_array,
+                                                                                 mel_spectrogram_array,
+                                                                                 label_array)
 
     # Load pre-extracted feature. Train/Test separation
     if MGC.CLF.selected_classifier == 'cnn' or MGC.CLF.selected_classifier == 'resnet' or MGC.CLF.selected_classifier == 'rnn':
@@ -218,14 +231,13 @@ def main():
     model = MGC.training(run_training, train_data, train_label, pre_trained_model_file, output_model_directory_path="backend/model")
 
     # Test model performance
-    accuracy = MGC.test(model, test_data, test_label)
-    print("Test accuracy is {0}% \n".format(accuracy))
+    loss, accuracy = MGC.test(model, test_data, test_label)
 
     # Confusion matrix
-    test_loader = DataProcess.torch_test_data_loader(test_data, test_label)
-    prediction = MGC.predict(model, test_loader)
-    print("Confusion Matrix")
-    print(confusion_matrix(test_label, prediction.argmax(axis=1)))
+    # test_loader = DataProcess.torch_test_data_loader(test_data, test_label)
+    # prediction = MGC.predict(model, test_loader)
+    # print("Confusion Matrix")
+    # print(confusion_matrix(test_label, prediction.argmax(axis=1)))
 
 
 if __name__ == "__main__":
