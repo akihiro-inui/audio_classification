@@ -192,7 +192,7 @@ def main():
 
     # Set Conditions
     run_feature_extraction = False
-    run_training = True
+    run_training = False
 
     # Instantiate mgc main class
     MGC = MusicGenreClassification(AudioDatasetMaker,
