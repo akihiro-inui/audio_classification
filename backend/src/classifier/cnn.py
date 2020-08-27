@@ -6,6 +6,7 @@ Created on sleepy midnight in Aug
 """
 import keras
 import tensorflow as tf
+import tensorflowjs as tfjs
 from tensorflow.keras import layers, models
 from keras.models import model_from_json
 import os
@@ -69,7 +70,7 @@ class CNN:
         loss, accuracy = model.evaluate(test_data, test_label, verbose=1)
         print('Test loss:', loss)
         print('Test accuracy:', accuracy)
-        return accuracy*100
+        return loss, accuracy
 
     def predict(self, model, test_data):
         """
@@ -125,8 +126,5 @@ class CNN:
         if not model:
             model = self.model
 
-        # json形式でモデルを保存
-        json_string = model.to_json()
-        open(os.path.join(output_directory, 'model.json'), 'w').write(json_string)
-        model.save_weights(os.path.join(output_directory, 'weights.hdf5'))
-
+        # Save model with its weights
+        tfjs.converters.save_keras_model(model, output_directory)
