@@ -19,7 +19,7 @@ class CNN:
         self.validation_rate = validation_rate
         self.num_classes = num_classes
         self.model = models.Sequential()
-        self.model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(22, 128, 1)))
+        self.model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(35, 128, 1)))
         self.model.add(layers.Conv2D(64, kernel_size=(3, 3), activation='relu'))
         self.model.add(layers.MaxPooling2D(pool_size=(2, 2)))
         self.model.add(layers.Dropout(0.25))
@@ -40,7 +40,7 @@ class CNN:
         model_graph = self.model.fit(train_data,
                                      train_label,
                                      batch_size=4,
-                                     epochs=10,
+                                     epochs=100,
                                      verbose=1,
                                      validation_split=0.2)
 
@@ -112,7 +112,7 @@ class CNN:
         model.load_weights(weight_file_path)
 
         # Compile model
-        model.compile(loss=categorical_crossentropy,
+        model.compile(loss=keras.losses.categorical_crossentropy,
                       optimizer=keras.optimizers.adam(),
                       metrics=['accuracy'])
         return model

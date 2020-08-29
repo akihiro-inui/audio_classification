@@ -7,14 +7,14 @@ Created on Mar 06
 """
 # Import libraries/modules
 import os
+import sys
+sys.path.insert(0, os.getcwd())
+
 import librosa
 import numpy as np
 from pydub import AudioSegment
 from backend.src.utils.file_utils import FileUtil
-from backend.src.utils.audio_util import AudioUtil
 from backend.src.common.config_reader import ConfigReader
-import matplotlib.pyplot as plt
-from tqdm import tqdm
 
 
 class AudioReaderError(Exception):
@@ -123,14 +123,17 @@ class AudioDatasetMaker:
         # Apply process to audio files in the input directory
         for audio_file in file_names:
             # Process one audio file
-            processed_audio = self.process_audio_file(os.path.join(input_directory, audio_file), self.audio_length,
-                                                      self.sampling_rate)
-            # Rename file
-            file_path, extension = os.path.splitext(audio_file)
+            try:
+                processed_audio = self.process_audio_file(os.path.join(input_directory, audio_file), self.audio_length,
+                                                          self.sampling_rate)
+                # Rename file
+                file_path, extension = os.path.splitext(audio_file)
 
-            # Save it
-            self.save_audio_file(processed_audio, os.path.join(output_directory, file_path+".wav"), self.sampling_rate,
-                                 self.normalize)
+                # Save it
+                self.save_audio_file(processed_audio, os.path.join(output_directory, file_path+".wav"), self.sampling_rate,
+                                     self.normalize)
+            except Exception as err:
+                print(f"Skipping too short audio: {err}")
 
     def process_dataset(self, input_dataset: str, output_dataset: str):
         """
@@ -159,7 +162,7 @@ if __name__ == "__main__":
     # File path
     setting_file = "config/master_config.ini"
     input_dataset_path = "data"
-    output_dataset_path = "processed_music_data"
+    output_dataset_path = "processed_data"
 
     # Instantiate class
     ADM = AudioDatasetMaker(setting_file)

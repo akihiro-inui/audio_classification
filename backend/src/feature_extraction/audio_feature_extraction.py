@@ -24,7 +24,6 @@ from backend.src.feature_extraction.low_energy import low_energy
 from backend.src.feature_extraction.modulation_spectrum_feature import MSF
 from backend.src.utils.stats_tool import get_mean, get_std
 from backend.src.utils.file_utils import FileUtil
-from backend.src.data_process.data_process import DataProcess
 
 
 class AudioFeatureExtraction:
@@ -259,7 +258,7 @@ class AudioFeatureExtraction:
     @staticmethod
     def dict2array(directory_files_feature_dict: dict):
         """
-        Convert extracted feature to
+        Convert extracted feature to numpy array
         :param directory_files_feature_dict: dictionary of extracted features from all audio files in dataset folder
         {key: name of directory, value: list of file names {key: file name, value: list of extracted features}}
         :return: expert_feature_2d_array: 2D Numpy array of extracted feature using expert system

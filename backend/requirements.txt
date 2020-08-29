@@ -5,14 +5,14 @@ matplotlib
 pickle-mixin
 flask
 scikit-learn[alldeps]
-librosa
+librosa==0.7.2
 torch
-tensorflow
+tensorflow==2.3.0
 pydub
 pytorch2keras
 onnx_tf
 torchvision
 cloudpickle
-numba
+numba==0.48.0
 tqdm
 tensorflowjs
