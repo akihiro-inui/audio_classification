@@ -5,6 +5,9 @@ Created on Christmas 2018
 @author: Akihiro Inui
 """
 import os
+import sys
+sys.path.insert(0, os.getcwd())
+
 import numpy as np
 from backend.src.utils.file_utils import FileUtil
 from backend.src.classifier.classifier_wrapper import Classifier
@@ -12,7 +15,6 @@ from backend.src.common.config_reader import ConfigReader
 from backend.src.data_process.data_process import DataProcess
 from backend.src.feature_extraction.audio_feature_extraction import AudioFeatureExtraction
 from backend.src.data_process.audio_dataset_maker import AudioDatasetMaker
-from sklearn.metrics import confusion_matrix
 
 
 class MusicGenreClassification:
@@ -192,13 +194,13 @@ def main():
 
     # Set Conditions
     run_feature_extraction = False
-    run_training = False
+    run_training = True
 
     # Instantiate mgc main class
     MGC = MusicGenreClassification(AudioDatasetMaker,
                                    AudioFeatureExtraction,
                                    Classifier,
-                                   music_dataset_path="processed_music_data",
+                                   music_dataset_path="processed_data",
                                    setting_file="config/master_config.ini")
 
     # Make label from genre names in processed_music_data
@@ -209,6 +211,8 @@ def main():
         # Apply feature extraction
         directory_files_feature_dict, label_list = MGC.feature_extraction()
 
+        print("Cleaning extracted feature...")
+
         # Apply data processing to extracted feature
         expert_feature_array, mel_spectrogram_array, label_array = MGC.dict2array(directory_files_feature_dict,
                                                                                   label_list,
@@ -218,6 +222,7 @@ def main():
         expert_feature_array, mel_spectrogram_array, label_array = MGC.save_data(expert_feature_array,
                                                                                  mel_spectrogram_array,
                                                                                  label_array)
+        print("Saved feature!")
 
     # Load pre-extracted feature. Train/Test separation
     if MGC.CLF.selected_classifier == 'cnn' or MGC.CLF.selected_classifier == 'resnet' or MGC.CLF.selected_classifier == 'rnn':
@@ -228,7 +233,18 @@ def main():
         train_data, test_data, train_label, test_label = MGC.make_dataset_from_array(data_array, label_array)
 
     # Run training or load pre-trained model
-    model = MGC.training(run_training, train_data, train_label, pre_trained_model_file, output_model_directory_path="backend/model")
+    print("Training model...")
+    model = MGC.training(run_training,
+                         train_data,
+                         train_label,
+                         pre_trained_model_file,
+                         output_model_directory_path="backend/model")
+
+    print("Trained model!")
+
+    # Write metadata json file
+    metadata = {"words": [label for label in os.listdir('processed_data')]}
+    FileUtil.dict2json(metadata, 'backend/model/metadata.json')
 
     # Test model performance
     loss, accuracy = MGC.test(model, test_data, test_label)

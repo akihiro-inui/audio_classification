@@ -7,6 +7,7 @@ Created on Fri Mar 23 02:01:21 2018
 """
 import os
 import csv
+import json
 import pandas as pd
 import numpy as np
 import datetime
@@ -249,3 +250,16 @@ class FileUtil:
         with open(input_text_file, 'r') as f:
             reader = csv.reader(f)
             return list(reader)
+
+    @staticmethod
+    def dict2json(input_dictionary: dict, output_json_file: str):
+        """
+        Write out dictionary as json file
+        :param input_dictionary: Input dictionary to write
+        :param output_json_file: Output json file path
+        """
+        try:
+            with open(output_json_file, 'w') as outfile:
+                json.dump(input_dictionary, outfile)
+        except Exception as err:
+            raise Exception(f"Error while writing json file: {err}")
